@@ -1,0 +1,1 @@
+python myTFDistributedTrainerv2.py --data_name "GTSRB" --data_type "imagefolder" --data_path "/workspace/datasets/archive/train" --img_height 71 --img_width 71

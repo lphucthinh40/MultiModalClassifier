@@ -28,7 +28,7 @@ def loadTFdataset(name, type, path='/home/lkk/.keras/datasets/flower_photos', im
         train_data, test_data, num_train_examples, num_test_examples, class_names, imageshape = loadkerasdataset(name)
         train_ds, val_ds = setBatchtoTFdataset(train_data, test_data, batch_size)
     elif type=='imagefolder':
-        train_ds, val_ds, class_names, imageshape=loadimagefolderdataset(name, path, 'jpg', img_height, img_width, batch_size)
+        train_ds, val_ds, class_names, imageshape=loadimagefolderdataset(name, path, 'png', img_height, img_width, batch_size)
     elif type.startswith('custom'):
         train_ds, val_ds, class_names, imageshape=loadTFcustomdataset(name, type, path, img_height, img_width, batch_size)
     else:
@@ -155,6 +155,7 @@ def loadimagefolderdataset(name, imagefolderpath='~/.keras/datasets/flower_photo
     if imageformat=='jpg' or imageformat=='png':
         imagepattern='*/*.'+imageformat
         image_count = len(list(data_dir.glob(imagepattern)))
+        
         if image_count<=0 and name=='flower':
             dataset_url = "https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz"
             imagefolderpath = tf.keras.utils.get_file('flower_photos', origin=dataset_url, untar=True)##/home/lkk/.keras/datasets/flower_photos

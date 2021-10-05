@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 import os
+import tf_clahe
+
 print(tf.__version__)
 
 from TFClassifier.Datasetutil.TFdatasetutil import loadTFdataset #loadtfds, loadkerasdataset, loadimagefolderdataset
@@ -29,8 +31,9 @@ parser.add_argument('--img_width', type=int, default=180,
                     help='resize to img width')
 parser.add_argument('--save_path', type=str, default='./outputs/',
                     help='path to save the model')
+                    
 # network
-parser.add_argument('--model_name', default='xceptionmodel1', choices=['cnnsimple1', 'cnnsimple2', 'cnnsimple3', 'cnnsimple4','mobilenetmodel1', 'xceptionmodel1'],
+parser.add_argument('--model_name', default='xceptionmodel1', choices=['cnnsimple1', 'cnnsimple2', 'cnnsimple3', 'cnnsimple4','mobilenetmodel1', 'mobilenetmodel2', 'xceptionmodel1',  'xceptionmodel2', 'efficientnetB1', 'efficientnetB4'],
                     help='the network')
 parser.add_argument('--arch', default='Tensorflow', choices=['Tensorflow', 'Pytorch'],
                     help='Model Name, default: Tensorflow.')
@@ -47,6 +50,8 @@ parser.add_argument('--TPU', type=bool, default=False,
 parser.add_argument('--MIXED_PRECISION', type=bool, default=False,
                     help='use MIXED_PRECISION')
 
+# preprocess input
+# parser.add_argument('--apply_clahe', type=bool, default=True, help='preprocess image with Contrast Limited Adaptive Histogram Equalization (CLAHE)')
 
 args = parser.parse_args()
 
@@ -57,6 +62,9 @@ class PrintLR(tf.keras.callbacks.Callback):
     print('\nLearning rate for epoch {} is {}'.format(epoch + 1,
                                                       model.optimizer.lr.numpy()))
 
+def input_preprocess(image, label):
+    image = tf_clahe.clahe(image)
+    return image, label
 
 def main():
     print("Tensorflow Version: ", tf.__version__)
@@ -118,6 +126,10 @@ def main():
 
     #Tune for performance, Use buffered prefetching to load images from disk without having I/O become blocking
     AUTOTUNE = tf.data.AUTOTUNE #tf.data.experimental.AUTOTUNE
+    
+    # train_ds = train_ds.map(input_preprocess, num_parallel_calls=AUTOTUNE)
+    # val_ds = val_ds.map(input_preprocess, num_parallel_calls=AUTOTUNE)
+
     train_ds = train_ds.cache().shuffle(BUFFER_SIZE).prefetch(buffer_size=AUTOTUNE)
     val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
